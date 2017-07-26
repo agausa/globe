@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GLOBE</title>
+
+  <script src="js/globe.js"></script>
+</head>
+
+<body>
+
+  <canvas id = "globe" width = "500" height = "500"></canvas>
+
+  <script>
+    var c = document.querySelector("#globe");
+    var ctx = c.getContext("2d");
+
+    GenerateLookupTables();
+    loadMapImage(ctx);
+  </script>
+
+</body>
+
+</html>

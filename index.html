@@ -8,14 +8,54 @@
 
 <body>
 
-  <canvas id = "globe" width = "500" height = "500"></canvas>
+  <div id='globe' style="width:300px; height:300px; border-style:solid; border-width:1px;"></div>
+  <div id='controls'>
+    <input type='button' value='<' onclick='onLeft();'>
+    <input type='button' value='>' onclick='onRight();'>
+    <input type='button' value='^'  onclick='onUp();'>
+    <input type='button' value='v'  onclick='onDown();'>
+  </div>
 
   <script>
-    var c = document.querySelector("#globe");
-    var ctx = c.getContext("2d");
+    var globe = new Globe('globe');
 
-    GenerateLookupTables();
-    loadMapImage(ctx);
+    var lat = 0;
+    var lon = 0;
+    var step = 5; // rotation step
+
+    globe.rotateToLatLon(lat, lon);
+
+    function onLeft(){
+      lon = lon + step;
+
+      globe.rotateToLatLon(lat, lon);
+      globe.refresh();
+    };
+
+    function onRight(){
+      lon = lon - step;
+
+      globe.rotateToLatLon(lat, lon);
+      globe.refresh();
+    };
+
+    function onUp(){
+      // limit to 90 degrees
+      if(lat - step >= -90)
+        lat = lat - step;
+
+      globe.rotateToLatLon(lat, lon);
+      globe.refresh();
+    };
+
+    function onDown(){
+      // limit to 90 degrees
+      if(lat + step <= 90)
+        lat = lat + step;
+
+      globe.rotateToLatLon(lat, lon);
+      globe.refresh();
+    }
   </script>
 
 </body>

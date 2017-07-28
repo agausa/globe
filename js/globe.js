@@ -1,14 +1,17 @@
 
 var gDayImage = new Image();
-var gDisplayWidth = 500;
-var gDisplayHeight = 500;
+var gDisplayWidth;
+var gDisplayHeight;
 
 var CW = gDisplayWidth/2;
 var CH = gDisplayHeight/2;
 
-var gRadius = 250;
+var gRadius;
 var gAngX = 0;
 var gAngY = 0;
+
+var gImageData;
+var gCTX;         // global drawing context
 
 var gDayImageName = "images/world_4096x2048.png";
 
@@ -19,9 +22,38 @@ var RANGE = 65536;
 var sqrt_table = new Array();
 var cos_b1 = new Array();
 
+function Globe(id){
+  this.ParentId = id;
+
+  // get parent object and dimentions
+  var parentDiv = document.getElementById(id);
+
+  if(parentDiv){
+    gDisplayWidth = parentDiv.offsetWidth;
+    gDisplayHeight = parentDiv.offsetHeight;
+
+    CW = gDisplayWidth/2;
+    CH = gDisplayHeight/2;
+
+    gRadius = gDisplayWidth/2;
+
+    this.GenerateLookupTables();
+
+    var innerDiv = document.createElement('canvas');
+    innerDiv.width = gDisplayWidth;
+    innerDiv.height = gDisplayHeight;
+    parentDiv.appendChild(innerDiv);
+
+    // load map and draw
+    gCTX = innerDiv.getContext("2d");
+    this.loadMapImage(gCTX);
+  }
+}
+
 //________________________________ GenerateLookupTables _______________________
 
-function GenerateLookupTables(){
+Globe.prototype.GenerateLookupTables = function(){
+
 	var w = gDisplayWidth/2;
 	for(var x =- w; x <= w; x++)
 	{
@@ -39,39 +71,11 @@ function GenerateLookupTables(){
 	}
 }
 
-//________________________________ drawGlobe __________________________________
-
-function drawGlobeTest(ctx, data){
-  /*
-  ctx.strokeRect(50, 50, 100, 100);
-
-  ctx.font = "bold 36px impact";
-  ctx.fillStyle = 'white';
-  ctx.fillText("CANVAS MEMES!", c.width/2, 40);
-
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = 'black';
-  ctx.strokeText("CANVAS MEMES!", c.width/2, 40);
-  */
-
-  var imageData = ctx.getImageData(0, 0, gDisplayWidth, gDisplayHeight);
-  var imageSize = imageData.data.length / 4;
-
-  for(var i = 0; i < imageSize; i += 1)
-  {
-    imageData.data[i*4 + 0] = data[i*4 + 0];
-    imageData.data[i*4 + 1] = data[i*4 + 1];
-    imageData.data[i*4 + 2] = data[i*4 + 2];
-    imageData.data[i*4 + 3] = data[i*4 + 3];
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-};
-
 //________________________________ loadMapImage _______________________________
 
-function loadMapImage(ctx){
+Globe.prototype.loadMapImage = function(ctx){
   gDayImage.src = gDayImageName;
+  var that = this;
 
   gDayImage.onload = function() {
 
@@ -80,15 +84,22 @@ function loadMapImage(ctx){
     canvas.width = gDayImage.width;
     canvas.height = gDayImage.height;
     context.drawImage(gDayImage, 0, 0 );
-    var data = context.getImageData(0, 0, gDayImage.width, gDayImage.height).data;
+    gImageData = context.getImageData(0, 0, gDayImage.width, gDayImage.height).data;
 
-    drawGlobe(ctx, data);
+    //that.rotateToLatLon(10, 180);
+    that.drawGlobe(ctx, gImageData);
   }
+};
+
+//________________________________ refresh ____________________________________
+
+Globe.prototype.refresh = function(){
+  this.drawGlobe(gCTX, gImageData);
 };
 
 //________________________________ drawGlobe __________________________________
 
-function drawGlobe(ctx, data){
+Globe.prototype.drawGlobe = function(ctx, data){
   var imageData = ctx.getImageData(0, 0, gDisplayWidth, gDisplayHeight);
   var bmpW = gDayImage.width;
 	var bmpH = gDayImage.height;
@@ -103,7 +114,7 @@ function drawGlobe(ctx, data){
   var aX = gAngX*2*PI/RANGE;
   var aY = gAngY*2*PI/RANGE;
 
-  var bmpCPX = (aX * (bmpW_1)/PI_2) + bmpW/4;
+  var bmpCPX =  Math.round((aX * (bmpW_1)/PI_2) + bmpW/4);
 	if(bmpCPX >= bmpW)
 		bmpCPX -= bmpW;
 
@@ -168,8 +179,11 @@ function drawGlobe(ctx, data){
 
 //________________________________ rotateToLatLon _____________________________
 
-function rotateToLatLon(lat, lon)
+Globe.prototype.rotateToLatLon = function(lat, lon)
 {
+  lat = lat*PI/180.0;
+  lon = lon*PI/180.0;
+
 	//lat/lon values are in radians
 	//lat is in range -PI/2 to PI/2
 	//lon is in range 0 to 2*PI

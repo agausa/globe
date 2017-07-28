@@ -8,12 +8,15 @@
 
 <body>
 
-  <div id='globe' style="width:300px; height:300px; border-style:solid; border-width:1px;"></div>
+  <div id='globe' style="width:500px; height:500px; border-style:solid; border-width:1px;"></div>
   <div id='controls'>
     <input type='button' value='<' onclick='onLeft();'>
     <input type='button' value='>' onclick='onRight();'>
     <input type='button' value='^'  onclick='onUp();'>
     <input type='button' value='v'  onclick='onDown();'>
+
+    <input type='button' value='+'  onclick='onRadiusInc();'>
+    <input type='button' value='-'  onclick='onRadiusDec();'>
   </div>
 
   <script>
@@ -21,6 +24,7 @@
 
     var lat = 0;
     var lon = 0;
+    var radius;
     var step = 5; // rotation step
 
     globe.rotateToLatLon(lat, lon);
@@ -55,6 +59,18 @@
 
       globe.rotateToLatLon(lat, lon);
       globe.refresh();
+    }
+
+    function onRadiusInc(){
+      radius = globe.getRadius();
+      radius += step;
+      globe.setRadius(radius);
+    }
+
+    function onRadiusDec(){
+      radius = globe.getRadius();
+      radius -= step;
+      globe.setRadius(radius);
     }
   </script>
 

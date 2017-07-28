@@ -13,7 +13,7 @@ var gAngY = 0;
 var gImageData;
 var gCTX;         // global drawing context
 
-var gDayImageName = "images/world_4096x2048.png";
+var gDayImageName = "images/world_2048x1024.jpg";
 
 var PI = 3.141592653589793238;
 var PI_2 = 6.283185307179586476;
@@ -21,6 +21,8 @@ var RANGE = 65536;
 
 var sqrt_table = new Array();
 var cos_b1 = new Array();
+
+//________________________________ Globe ______________________________________
 
 function Globe(id){
   this.ParentId = id;
@@ -69,6 +71,11 @@ Globe.prototype.GenerateLookupTables = function(){
 			cos_b1[x + w] = Math.cos(b1);
 		}
 	}
+}
+
+Globe.prototype.clean = function(){
+  sqrt_table.length = 0;
+  cos_b1.length = 0;
 }
 
 //________________________________ loadMapImage _______________________________
@@ -191,4 +198,20 @@ Globe.prototype.rotateToLatLon = function(lat, lon)
 	gAngX =  Math.round((lon+PI/2)*RANGE/PI_2);
 	if(gAngX < 0) gAngX += RANGE;
 	else if(gAngX > RANGE) gAngX -= RANGE;
+}
+
+//________________________________ getRadius __________________________________
+
+Globe.prototype.getRadius = function(){
+  return gRadius;
+}
+
+//________________________________ setRadius __________________________________
+
+Globe.prototype.setRadius = function(radius){
+  gRadius = radius;
+
+  this.clean();
+  this.GenerateLookupTables();
+  this.refresh();
 }

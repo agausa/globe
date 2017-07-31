@@ -4,6 +4,10 @@
   <title>GLOBE</title>
 
   <script src="js/globe.js"></script>
+  <!-- [oleg, 2017-07-31]: add rotate on drug  -->
+  <!-- [oleg, 2017-07-31]: BEGIN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- [oleg, 2017-07-31]: END -->
 </head>
 
 <body>
@@ -28,6 +32,44 @@
     var step = 5; // rotation step
 
     globe.rotateToLatLon(lat, lon);
+
+	// [oleg, 2017-07-31]: add rotate on drug
+	// TODO: for Igor to review code below
+	// -- [oleg, 2017-07-31]: BEGIN --
+	var offsetX = 0;
+	var offsetY = 0
+	var startX = null;
+	var startY = null;
+
+	$("#globe").on("mousedown", function (e) {
+        e.preventDefault();
+        startX = e.pageX - offsetX;
+        startY = e.pageY - offsetY;
+    })
+    .on("mouseup", function(e) {
+        e.preventDefault();
+        startX = null;
+        startY = null;
+    })
+    .on("mousemove", function (e) {
+    	if((!startX) || (!startY)) return false;
+		e.preventDefault();
+
+		/*
+		// in case originalEvent.movement is not available
+		// TODO: check compatibility
+		lon += (e.pageX - startX)/step;
+		lat += (e.pageY - startY)/step;
+		*/
+
+		lon -= e.originalEvent.movementX;
+		lat += e.originalEvent.movementY;
+
+		globe.rotateToLatLon(lat, lon);
+		globe.refresh();
+    });
+	// -- [oleg, 2017-07-31]: END --
+
 
     function onLeft(){
       lon = lon + step;
